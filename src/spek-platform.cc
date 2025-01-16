@@ -7,6 +7,8 @@
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 #include <wx/utils.h>
+#include <wx/display.h>
+#include <wx/settings.h>
 
 #include "spek-platform.h"
 
@@ -50,9 +52,9 @@ bool spek_platform_can_change_language()
 
 double spek_platform_font_scale()
 {
-#ifdef OS_OSX
-    return 1.3;
-#else
-    return 1.0;
-#endif
+    wxDisplay display;
+    int dpi = display.GetPPI().GetWidth(); // Horizontal DPI
+    int defaultDPI = 96;                   // Standard DPI
+
+    return 2 * static_cast<double>(dpi) / defaultDPI;
 }

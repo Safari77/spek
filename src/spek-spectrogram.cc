@@ -55,11 +55,11 @@ SpekSpectrogram::SpekSpectrogram(wxFrame *parent) :
     fft_bits(FFT_BITS),
     urange(URANGE),
     lrange(LRANGE),
-    LPAD(this->FromDIP(60)),
-    TPAD(this->FromDIP(60)),
-    RPAD(this->FromDIP(90)),
-    BPAD(this->FromDIP(40)),
-    GAP(this->FromDIP(10)),
+    LPAD(this->FromDIP(140)),
+    TPAD(this->FromDIP(80)),
+    RPAD(this->FromDIP(180)),
+    BPAD(this->FromDIP(60)),
+    GAP(this->FromDIP(20)),
     RULER(this->FromDIP(10))
 {
     this->create_palette();
@@ -233,17 +233,19 @@ void SpekSpectrogram::render(wxDC& dc)
     dc.SetPen(*wxWHITE_PEN);
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
     dc.SetTextForeground(wxColour(255, 255, 255));
-    wxFont normal_font = wxFont(
-        (int)round(9 * spek_platform_font_scale()),
+    wxFont normal_font;
+    if (!wxFromString("Iosevka Term SS08", &normal_font)) {
+        normal_font = wxFont(
+        (int)lround(9 * spek_platform_font_scale()),
         wxFONTFAMILY_SWISS,
         wxFONTSTYLE_NORMAL,
-        wxFONTWEIGHT_NORMAL
-    );
+        wxFONTWEIGHT_NORMAL);
+    }
     wxFont large_font = wxFont(normal_font);
-    large_font.SetPointSize((int)round(10 * spek_platform_font_scale()));
+    large_font.SetPointSize((int)lround(10 * spek_platform_font_scale()));
     large_font.SetWeight(wxFONTWEIGHT_BOLD);
     wxFont small_font = wxFont(normal_font);
-    small_font.SetPointSize((int)round(8 * spek_platform_font_scale()));
+    small_font.SetPointSize((int)lround(8 * spek_platform_font_scale()));
     dc.SetFont(normal_font);
     int normal_height = dc.GetTextExtent("dummy").GetHeight();
     dc.SetFont(large_font);
