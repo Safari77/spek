@@ -8,6 +8,7 @@
 #include "spek-platform.h"
 #include "spek-ruler.h"
 #include "spek-utils.h"
+#include "spek-preferences.h"
 
 #include "spek-spectrogram.h"
 
@@ -167,8 +168,12 @@ void SpekSpectrogram::on_paint(wxPaintEvent&)
 void SpekSpectrogram::on_size(wxSizeEvent&)
 {
     wxSize size = GetClientSize();
+    wxLogDebug("wxSize [on_size] = %dx%d", size.GetWidth(), size.GetHeight());
     bool width_changed = this->prev_width != size.GetWidth();
     this->prev_width = size.GetWidth();
+
+    // Save the new window size
+    SpekPreferences::get().set_window_size(size.GetWidth(), size.GetHeight());
 
     if (width_changed) {
         start();
