@@ -246,7 +246,7 @@ static wxString freq_formatter(int unit)
 
 static wxString density_formatter(int unit)
 {
-    return wxString::Format(_("%d dB"), -unit);
+    return wxString::Format(_("%3d dB"), -unit);
 }
 
 void SpekSpectrogram::render(wxDC& dc)
