@@ -16,6 +16,8 @@ BEGIN_EVENT_TABLE(SpekSpectrogram, wxWindow)
     EVT_CHAR(SpekSpectrogram::on_char)
     EVT_PAINT(SpekSpectrogram::on_paint)
     EVT_SIZE(SpekSpectrogram::on_size)
+    EVT_TIMER(ID_RESIZE_TIMER, SpekSpectrogram::on_resize_timer)
+    EVT_TIMER(ID_UPDATE_TIMER, SpekSpectrogram::on_update)
     SPEK_EVT_HAVE_SAMPLE(SpekSpectrogram::on_have_sample)
 END_EVENT_TABLE()
 
@@ -52,7 +54,10 @@ SpekSpectrogram::SpekSpectrogram(wxFrame *parent) :
     palette(PALETTE_DEFAULT),
     palette_image(),
     image(1, 1),
-    prev_width(-1),
+    prev_size(-1, -1),
+    prev_save_size(-1, -1),
+    m_resizeTimer(this, ID_RESIZE_TIMER),
+    m_updateTimer(this, ID_UPDATE_TIMER),
     fft_bits(FFT_BITS),
     urange(URANGE),
     lrange(LRANGE),
@@ -65,6 +70,8 @@ SpekSpectrogram::SpekSpectrogram(wxFrame *parent) :
 {
     this->create_palette();
 
+    m_updateTimer.Start(1000);
+    m_resizeTimer.Start(1000 / 60);
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     SetFocus();
 }
@@ -165,18 +172,34 @@ void SpekSpectrogram::on_paint(wxPaintEvent&)
     render(dc);
 }
 
-void SpekSpectrogram::on_size(wxSizeEvent&)
+void SpekSpectrogram::on_size(wxSizeEvent& evt)
+{
+    wxLogDebug("on_size");
+    m_resizeTimer.Start(1000 / 60, wxTIMER_ONE_SHOT);
+    evt.Skip();
+}
+
+void SpekSpectrogram::on_resize_timer(wxTimerEvent& event)
 {
     wxSize size = GetClientSize();
-    wxLogDebug("wxSize [on_size] = %dx%d", size.GetWidth(), size.GetHeight());
-    bool width_changed = this->prev_width != size.GetWidth();
-    this->prev_width = size.GetWidth();
-
-    // Save the new window size
-    SpekPreferences::get().set_window_size(size.GetWidth(), size.GetHeight());
-
-    if (width_changed) {
+    bool size_changed = this->prev_size != size;
+    this->prev_size = size;
+    if (size_changed) {
         start();
+    }
+    wxLogDebug("on_resize_timer size=%dx%d%s", size.GetWidth(), size.GetHeight(),
+               size_changed ? " (changed)" : "");
+}
+
+void SpekSpectrogram::on_update(wxTimerEvent& event)
+{
+    wxSize size = GetClientSize();
+
+    if (this->prev_save_size != size) {
+        this->prev_save_size = size;
+        SpekPreferences::get().set_window_size(size.GetWidth(), size.GetHeight());
+        wxLogDebug("on_update Config file updated with new size: %dx%d",
+                   size.GetWidth(), size.GetHeight());
     }
 }
 

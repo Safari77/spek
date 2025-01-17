@@ -12,6 +12,12 @@ class FFT;
 class SpekHaveSampleEvent;
 struct spek_pipeline;
 
+enum
+{
+    ID_RESIZE_TIMER = wxID_HIGHEST + 1,
+    ID_UPDATE_TIMER
+};
+
 class SpekSpectrogram : public wxWindow
 {
 public:
@@ -24,6 +30,8 @@ private:
     void on_char(wxKeyEvent& evt);
     void on_paint(wxPaintEvent& evt);
     void on_size(wxSizeEvent& evt);
+    void on_resize_timer(wxTimerEvent& event);
+    void on_update(wxTimerEvent& event);
     void on_have_sample(SpekHaveSampleEvent& evt);
     void render(wxDC& dc);
 
@@ -47,7 +55,10 @@ private:
     enum palette palette;
     wxImage palette_image;
     wxImage image;
-    int prev_width;
+    wxSize prev_size;
+    wxSize prev_save_size;
+    wxTimer m_resizeTimer;
+    wxTimer m_updateTimer;
     int fft_bits;
     int urange;
     int lrange;
